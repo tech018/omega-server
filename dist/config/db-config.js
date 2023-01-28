@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const sequelize_1 = require("sequelize");
 const config_1 = __importDefault(require("./config"));
 const dbDriver = config_1.default.dialect;
-const databaseConnection = new sequelize_1.Sequelize(config_1.default.HOST, config_1.default.USER, config_1.default.PASSWORD, {
+const databaseConnection = new sequelize_1.Sequelize(config_1.default.DBNAME, config_1.default.USER, config_1.default.PASSWORD, {
     host: config_1.default.HOST,
     dialect: dbDriver,
 });

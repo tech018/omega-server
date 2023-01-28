@@ -4,7 +4,7 @@ import config from "./config";
 const dbDriver = config.dialect as Dialect;
 
 const databaseConnection = new Sequelize(
-  config.HOST,
+  config.DBNAME,
   config.USER,
   config.PASSWORD,
   {
