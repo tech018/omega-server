@@ -1,4 +1,4 @@
-import { Response, Request, NextFunction, query } from "express";
+import { Response, Request, NextFunction } from "express";
 import { Params, Query } from "express-serve-static-core";
 
 interface schema {
@@ -22,5 +22,3 @@ export const validate =
       return res.status(403).json({ message: " Some errors" });
     }
   };
-
-module.exports = validate;

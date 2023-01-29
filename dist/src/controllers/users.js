@@ -49,7 +49,7 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const findUser = yield users_1.default.findOne({ where: { email } });
         if (!findUser)
-            return res.status(400).json({ message: "Invalid user or password" });
+            return res.status(400).json({ message: "Invalid Password or Email!" });
         const passwordIsValid = bcrypt_1.default.compareSync(password, findUser.password);
         if (!passwordIsValid)
             return res.status(400).json({ message: "Invalid Password or Email!" });

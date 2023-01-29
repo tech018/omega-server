@@ -24,4 +24,3 @@ const validate = (schema) => (req, res, next) => __awaiter(void 0, void 0, void 
     }
 });
 exports.validate = validate;
-module.exports = exports.validate;

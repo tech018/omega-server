@@ -4,6 +4,7 @@ import { Response } from "express";
 import { ValidatedRequest } from "express-joi-validation";
 import { RegisterRequestSchema, LoginRequestSchema } from "../schema/users";
 import { generateToken } from "../helpers/generateToken";
+import nodemailer from "nodemailer";
 
 interface newUser {
   email: string;
@@ -52,7 +53,7 @@ export const loginAction = async (
   try {
     const findUser = await UserModel.findOne({ where: { email } });
     if (!findUser)
-      return res.status(400).json({ message: "Invalid user or password" });
+      return res.status(400).json({ message: "Invalid Password or Email!" });
 
     const passwordIsValid = bcrypt.compareSync(password, findUser.password);
 

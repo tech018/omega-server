@@ -21,6 +21,7 @@
     "@types/bcrypt": "^5.0.0",
     "@types/cors": "^2.8.13",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/nodemailer": "^6.4.7",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
@@ -30,6 +31,7 @@
     "joi": "^17.7.0",
     "jsonwebtoken": "^9.0.0",
     "mysql2": "^3.0.1",
+    "nodemailer": "^6.9.1",
     "sequelize-typescript": "^2.1.5"
   }
 }
