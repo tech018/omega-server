@@ -9,5 +9,6 @@ const validator = (0, express_joi_validation_1.createValidator)();
 const router = express_1.default.Router();
 const users_1 = require("../controllers/users");
 const users_2 = require("../schema/users");
+router.route("/").post(validator.body(users_2.loginUserSchema), users_1.loginAction);
 router.route("/register").post(validator.body(users_2.registerUserSchema), users_1.createUser);
 exports.default = router;

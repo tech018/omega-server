@@ -2,19 +2,22 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/users";
 import { Response } from "express";
 import { ValidatedRequest } from "express-joi-validation";
-import { RegisterRequestSchema } from "../schema/users";
+import { RegisterRequestSchema, LoginRequestSchema } from "../schema/users";
+import { generateToken } from "../helpers/generateToken";
+
 interface newUser {
   email: string;
   password: string;
   fullname: string;
   mobile: number;
+  role: string;
 }
 
 export const createUser = async (
   req: ValidatedRequest<RegisterRequestSchema>,
   res: Response
 ) => {
-  const { email, password, fullname, mobile } = req.body;
+  const { email, password, fullname, mobile, role } = req.body;
   const salt = bcrypt.genSaltSync(10);
   const passwordHash = await bcrypt.hashSync(password, salt);
 
@@ -23,6 +26,7 @@ export const createUser = async (
     mobile,
     fullname,
     password: passwordHash,
+    role,
   };
 
   const findUser = await UserModel.findOne({ where: { email } });
@@ -37,6 +41,27 @@ export const createUser = async (
     }
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
-    console.log("errors 500", error);
+  }
+};
+
+export const loginAction = async (
+  req: ValidatedRequest<LoginRequestSchema>,
+  res: Response
+) => {
+  const { email, password } = req.body;
+  try {
+    const findUser = await UserModel.findOne({ where: { email } });
+    if (!findUser)
+      return res.status(400).json({ message: "Invalid user or password" });
+
+    const passwordIsValid = bcrypt.compareSync(password, findUser.password);
+
+    if (!passwordIsValid)
+      return res.status(400).json({ message: "Invalid Password or Email!" });
+
+    res.status(200).json({ token: generateToken(findUser) });
+  } catch (error) {
+    console.log("error 500", error);
+    return res.status(500).json({ message: `Internal server error`, error });
   }
 };

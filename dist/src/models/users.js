@@ -22,5 +22,8 @@ const UserModel = db_config_1.default.define("Users", {
     mobile: {
         type: sequelize_1.DataTypes.INTEGER,
     },
+    role: {
+        type: sequelize_1.DataTypes.STRING(255),
+    },
 });
 exports.default = UserModel;

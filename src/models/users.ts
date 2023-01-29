@@ -17,6 +17,7 @@ interface UserModel
   email: string;
   password: string;
   mobile: number;
+  role: string;
 }
 
 const UserModel = databaseConnection.define<UserModel>("Users", {
@@ -35,6 +36,9 @@ const UserModel = databaseConnection.define<UserModel>("Users", {
   },
   mobile: {
     type: DataTypes.INTEGER,
+  },
+  role: {
+    type: DataTypes.STRING(255),
   },
 });
 

@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.registerUserSchema = void 0;
+exports.loginUserSchema = exports.registerUserSchema = void 0;
 const Joi = __importStar(require("joi"));
 const express_joi_validation_1 = require("express-joi-validation");
 exports.registerUserSchema = Joi.object({
@@ -31,4 +31,9 @@ exports.registerUserSchema = Joi.object({
     password: Joi.string().required().min(2),
     email: Joi.string().email().required(),
     mobile: Joi.number().required(),
+    role: Joi.string().required(),
+});
+exports.loginUserSchema = Joi.object({
+    email: Joi.string().required(),
+    password: Joi.string().required().min(2),
 });
