@@ -4,7 +4,7 @@ import { Response } from "express";
 import { ValidatedRequest } from "express-joi-validation";
 import { RegisterRequestSchema, LoginRequestSchema } from "../schema/users";
 import { generateToken } from "../helpers/generateToken";
-import nodemailer from "nodemailer";
+import { sendEmail } from "../helpers/sendMail";
 
 interface newUser {
   email: string;
@@ -61,6 +61,16 @@ export const loginAction = async (
       return res.status(400).json({ message: "Invalid Password or Email!" });
 
     res.status(200).json({ token: generateToken(findUser) });
+
+    const mailOptions = {
+      from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>', // sender address
+      to: "zepnds@gmail.com", // list of receivers
+      subject: "Registration Successfull", // Subject line
+      text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST", // plain text body
+      html: `<h1>Sample email</h1>`, // html body
+    };
+
+    sendEmail(mailOptions);
   } catch (error) {
     console.log("error 500", error);
     return res.status(500).json({ message: `Internal server error`, error });
