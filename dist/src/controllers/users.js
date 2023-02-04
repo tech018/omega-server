@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.loginAction = exports.createUser = void 0;
+exports.verifyEmail = exports.loginAction = exports.createUser = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const users_1 = __importDefault(require("../models/users"));
 const generateToken_1 = require("../helpers/generateToken");
@@ -22,15 +22,14 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     const { email, password, fullname, mobile, role } = req.body;
     const salt = bcrypt_1.default.genSaltSync(10);
     const passwordHash = yield bcrypt_1.default.hashSync(password, salt);
-    const randomNumber = (0, randomGenerator_1.ramdomNumber)(6);
-    console.log("number", mobile);
+    const generated = (0, randomGenerator_1.randomNumber)(6);
     const newUser = {
         email,
         mobile,
         fullname,
         password: passwordHash,
         role,
-        OTP: randomNumber,
+        OTP: generated,
         verified: false,
     };
     const findUser = yield users_1.default.findOne({ where: { email } });
@@ -45,7 +44,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 to: email,
                 subject: "Email verification code",
                 text: "Greetings from Tarlac Agricultural University",
-                html: `<span>here is your OTP <h3>${randomNumber}</h3></span>`,
+                html: `<span>here is your OTP <h3>${randomGenerator_1.randomNumber}</h3></span>`,
             };
             (0, sendMail_1.sendEmail)(mailOptions);
         }
@@ -62,8 +61,15 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     const { email, password } = req.body;
     try {
         const findUser = yield users_1.default.findOne({ where: { email } });
+        const checkEmailVerfied = yield users_1.default.findOne({
+            where: { verified: true },
+        });
         if (!findUser)
             return res.status(400).json({ message: "Invalid Password or Email!" });
+        if (!checkEmailVerfied)
+            return res.status(400).json({
+                message: "This email is not yet verified check your email and see the verification code and verify your email",
+            });
         const passwordIsValid = bcrypt_1.default.compareSync(password, findUser.password);
         if (!passwordIsValid)
             return res.status(400).json({ message: "Invalid Password or Email!" });
@@ -80,3 +86,47 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.loginAction = loginAction;
+const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { verificationCode, email } = req.query;
+    console.log("verificationCode", verificationCode);
+    console.log("email", email);
+    try {
+        const checkCode = yield users_1.default.findOne({
+            where: {
+                OTP: verificationCode,
+            },
+        });
+        const checkEmail = yield users_1.default.findOne({
+            where: {
+                email,
+            },
+        });
+        if (!checkEmail) {
+            return res.status(400).json({
+                message: "Email cannot be found in our query or this is not registered",
+            });
+        }
+        if (!checkCode) {
+            return res
+                .status(400)
+                .json({ message: "Verification code has been expired or not exist" });
+        }
+        const data = {
+            verified: true,
+        };
+        const verifyEmail = yield users_1.default.update(data, {
+            where: {
+                email,
+            },
+        });
+        if (verifyEmail)
+            return res
+                .status(200)
+                .json({ message: `Successfully verified email: ${email}` });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+        console.log("error", error);
+    }
+});
+exports.verifyEmail = verifyEmail;

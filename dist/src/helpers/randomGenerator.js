@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ramdomNumber = exports.ramdomString = void 0;
+exports.randomNumber = exports.ramdomString = void 0;
 const ramdomString = (length) => {
     let result = "";
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -13,8 +13,8 @@ const ramdomString = (length) => {
     return result;
 };
 exports.ramdomString = ramdomString;
-const ramdomNumber = (length) => {
+const randomNumber = (length) => {
     return Math.floor(Math.pow(10, length - 1) +
         Math.random() * (Math.pow(10, length) - Math.pow(10, length - 1) - 1));
 };
-exports.ramdomNumber = ramdomNumber;
+exports.randomNumber = randomNumber;

@@ -2,10 +2,14 @@ import bcrypt from "bcrypt";
 import UserModel from "../models/users";
 import { Response } from "express";
 import { ValidatedRequest } from "express-joi-validation";
-import { RegisterRequestSchema, LoginRequestSchema } from "../schema/users";
+import {
+  RegisterRequestSchema,
+  LoginRequestSchema,
+  VerifyEmailSchema,
+} from "../schema/users";
 import { generateToken } from "../helpers/generateToken";
 import { sendEmail } from "../helpers/sendMail";
-import { ramdomNumber } from "../helpers/randomGenerator";
+import { randomNumber } from "../helpers/randomGenerator";
 
 interface newUser {
   email: string;
@@ -24,16 +28,15 @@ export const createUser = async (
   const { email, password, fullname, mobile, role } = req.body;
   const salt = bcrypt.genSaltSync(10);
   const passwordHash = await bcrypt.hashSync(password, salt);
-  const randomNumber: number = ramdomNumber(6);
+  const generated = randomNumber(6);
 
-  console.log("number", mobile);
   const newUser: newUser = {
     email,
     mobile,
     fullname,
     password: passwordHash,
     role,
-    OTP: randomNumber,
+    OTP: generated,
     verified: false,
   };
 
@@ -70,9 +73,16 @@ export const loginAction = async (
   const { email, password } = req.body;
   try {
     const findUser = await UserModel.findOne({ where: { email } });
+    const checkEmailVerfied = await UserModel.findOne({
+      where: { verified: true },
+    });
     if (!findUser)
       return res.status(400).json({ message: "Invalid Password or Email!" });
-
+    if (!checkEmailVerfied)
+      return res.status(400).json({
+        message:
+          "This email is not yet verified check your email and see the verification code and verify your email",
+      });
     const passwordIsValid = bcrypt.compareSync(password, findUser.password);
 
     if (!passwordIsValid)
@@ -86,5 +96,57 @@ export const loginAction = async (
   } catch (error) {
     console.log("error 500", error);
     return res.status(500).json({ message: `Internal server error`, error });
+  }
+};
+
+export const verifyEmail = async (
+  req: ValidatedRequest<VerifyEmailSchema>,
+  res: Response
+) => {
+  const { verificationCode, email } = req.query;
+  console.log("verificationCode", verificationCode);
+  console.log("email", email);
+
+  try {
+    const checkCode = await UserModel.findOne({
+      where: {
+        OTP: verificationCode,
+      },
+    });
+
+    const checkEmail = await UserModel.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!checkEmail) {
+      return res.status(400).json({
+        message: "Email cannot be found in our query or this is not registered",
+      });
+    }
+
+    if (!checkCode) {
+      return res
+        .status(400)
+        .json({ message: "Verification code has been expired or not exist" });
+    }
+
+    const data: object = {
+      verified: true,
+    };
+    const verifyEmail = await UserModel.update(data, {
+      where: {
+        email,
+      },
+    });
+
+    if (verifyEmail)
+      return res
+        .status(200)
+        .json({ message: `Successfully verified email: ${email}` });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
+    console.log("error", error);
   }
 };
