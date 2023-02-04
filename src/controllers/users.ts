@@ -5,6 +5,7 @@ import { ValidatedRequest } from "express-joi-validation";
 import { RegisterRequestSchema, LoginRequestSchema } from "../schema/users";
 import { generateToken } from "../helpers/generateToken";
 import { sendEmail } from "../helpers/sendMail";
+import { ramdomNumber } from "../helpers/randomGenerator";
 
 interface newUser {
   email: string;
@@ -12,6 +13,8 @@ interface newUser {
   fullname: string;
   mobile: number;
   role: string;
+  OTP: number;
+  verified: boolean;
 }
 
 export const createUser = async (
@@ -21,13 +24,17 @@ export const createUser = async (
   const { email, password, fullname, mobile, role } = req.body;
   const salt = bcrypt.genSaltSync(10);
   const passwordHash = await bcrypt.hashSync(password, salt);
+  const randomNumber: number = ramdomNumber(6);
 
+  console.log("number", mobile);
   const newUser: newUser = {
     email,
     mobile,
     fullname,
     password: passwordHash,
     role,
+    OTP: randomNumber,
+    verified: false,
   };
 
   const findUser = await UserModel.findOne({ where: { email } });
@@ -35,14 +42,16 @@ export const createUser = async (
     return res.status(400).json({ message: "User is already exist" });
   try {
     const user = await UserModel.create(newUser);
+
     if (user) {
       res.status(200).json({ message: `successfull registered ${fullname}` });
+
       const mailOptions = {
-        from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>', // sender address
-        to: email, // list of receivers
-        subject: "Registration Successfull", // Subject line
-        text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST", // plain text body
-        html: `<h1>Sample email</h1>`, // html body
+        from: '"Tarlac Agricultural University" <admin@tau.edu.ph>',
+        to: email,
+        subject: "Email verification code",
+        text: "Greetings from Tarlac Agricultural University",
+        html: `<span>here is your OTP <h3>${randomNumber}</h3></span>`,
       };
 
       sendEmail(mailOptions);
@@ -68,7 +77,11 @@ export const loginAction = async (
 
     if (!passwordIsValid)
       return res.status(400).json({ message: "Invalid Password or Email!" });
-
+    if (!findUser.verified) {
+      return res
+        .status(400)
+        .json({ message: "This account is not yet verified!" });
+    }
     res.status(200).json({ token: generateToken(findUser) });
   } catch (error) {
     console.log("error 500", error);

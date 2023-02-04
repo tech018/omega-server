@@ -11,11 +11,11 @@ const OTPModel = db_config_1.default.define("Otp", {
         type: sequelize_1.DataTypes.INTEGER.UNSIGNED,
     },
     otp: {
-        type: sequelize_1.DataTypes.STRING(255),
+        type: sequelize_1.DataTypes.INTEGER(),
         allowNull: false,
     },
     expiresIn: {
-        type: "TIMESTAMP",
+        type: sequelize_1.DataTypes.STRING(255),
         allowNull: false,
     },
     email: {

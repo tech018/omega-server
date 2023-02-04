@@ -22,7 +22,9 @@
     "@types/cors": "^2.8.13",
     "@types/gapi": "^0.0.44",
     "@types/jsonwebtoken": "^9.0.1",
+    "@types/moment": "^2.13.0",
     "@types/nodemailer": "^6.4.7",
+    "@types/sequelize": "^4.28.14",
     "bcrypt": "^5.1.0",
     "body-parser": "^1.20.1",
     "cors": "^2.8.5",
@@ -32,9 +34,11 @@
     "googleapis": "^110.0.0",
     "joi": "^17.7.0",
     "jsonwebtoken": "^9.0.0",
+    "moment": "^2.29.4",
     "mysql2": "^3.0.1",
     "nodemailer": "^6.9.1",
     "nodemailer2": "^2.7.1",
+    "sequelize": "^6.28.0",
     "sequelize-typescript": "^2.1.5"
   }
 }

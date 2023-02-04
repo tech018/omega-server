@@ -17,16 +17,21 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const users_1 = __importDefault(require("../models/users"));
 const generateToken_1 = require("../helpers/generateToken");
 const sendMail_1 = require("../helpers/sendMail");
+const randomGenerator_1 = require("../helpers/randomGenerator");
 const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password, fullname, mobile, role } = req.body;
     const salt = bcrypt_1.default.genSaltSync(10);
     const passwordHash = yield bcrypt_1.default.hashSync(password, salt);
+    const randomNumber = (0, randomGenerator_1.ramdomNumber)(6);
+    console.log("number", mobile);
     const newUser = {
         email,
         mobile,
         fullname,
         password: passwordHash,
         role,
+        OTP: randomNumber,
+        verified: false,
     };
     const findUser = yield users_1.default.findOne({ where: { email } });
     if (findUser)
@@ -36,11 +41,11 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         if (user) {
             res.status(200).json({ message: `successfull registered ${fullname}` });
             const mailOptions = {
-                from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>',
+                from: '"Tarlac Agricultural University" <admin@tau.edu.ph>',
                 to: email,
-                subject: "Registration Successfull",
-                text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST",
-                html: `<h1>Sample email</h1>`, // html body
+                subject: "Email verification code",
+                text: "Greetings from Tarlac Agricultural University",
+                html: `<span>here is your OTP <h3>${randomNumber}</h3></span>`,
             };
             (0, sendMail_1.sendEmail)(mailOptions);
         }
@@ -62,6 +67,11 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         const passwordIsValid = bcrypt_1.default.compareSync(password, findUser.password);
         if (!passwordIsValid)
             return res.status(400).json({ message: "Invalid Password or Email!" });
+        if (!findUser.verified) {
+            return res
+                .status(400)
+                .json({ message: "This account is not yet verified!" });
+        }
         res.status(200).json({ token: (0, generateToken_1.generateToken)(findUser) });
     }
     catch (error) {

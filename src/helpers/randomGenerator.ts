@@ -1,4 +1,4 @@
-export const makeRamdomString = (length: number): string => {
+export const ramdomString = (length: number): string => {
   let result: string = "";
   const characters: string =
     "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -9,4 +9,11 @@ export const makeRamdomString = (length: number): string => {
     counter += 1;
   }
   return result;
+};
+
+export const ramdomNumber = (length: number): number => {
+  return Math.floor(
+    Math.pow(10, length - 1) +
+      Math.random() * (Math.pow(10, length) - Math.pow(10, length - 1) - 1)
+  );
 };

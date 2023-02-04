@@ -17,7 +17,9 @@ interface UserModel
   email: string;
   password: string;
   mobile: number;
+  OTP: number;
   role: string;
+  verified: boolean;
 }
 
 const UserModel = databaseConnection.define<UserModel>("Users", {
@@ -35,10 +37,16 @@ const UserModel = databaseConnection.define<UserModel>("Users", {
     type: DataTypes.STRING(255),
   },
   mobile: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.INTEGER(),
   },
   role: {
     type: DataTypes.STRING(255),
+  },
+  OTP: {
+    type: DataTypes.INTEGER(),
+  },
+  verified: {
+    type: DataTypes.BOOLEAN(),
   },
 });
 
