@@ -35,6 +35,14 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         const user = yield users_1.default.create(newUser);
         if (user) {
             res.status(200).json({ message: `successfull registered ${fullname}` });
+            const mailOptions = {
+                from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>',
+                to: email,
+                subject: "Registration Successfull",
+                text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST",
+                html: `<h1>Sample email</h1>`, // html body
+            };
+            (0, sendMail_1.sendEmail)(mailOptions);
         }
         else {
             res.status(400).json({ message: `unable to register ${fullname}` });
@@ -55,14 +63,6 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         if (!passwordIsValid)
             return res.status(400).json({ message: "Invalid Password or Email!" });
         res.status(200).json({ token: (0, generateToken_1.generateToken)(findUser) });
-        const mailOptions = {
-            from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>',
-            to: "zepnds@gmail.com",
-            subject: "Registration Successfull",
-            text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST",
-            html: `<h1>Sample email</h1>`, // html body
-        };
-        (0, sendMail_1.sendEmail)(mailOptions);
     }
     catch (error) {
         console.log("error 500", error);

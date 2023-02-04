@@ -37,6 +37,15 @@ export const createUser = async (
     const user = await UserModel.create(newUser);
     if (user) {
       res.status(200).json({ message: `successfull registered ${fullname}` });
+      const mailOptions = {
+        from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>', // sender address
+        to: email, // list of receivers
+        subject: "Registration Successfull", // Subject line
+        text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST", // plain text body
+        html: `<h1>Sample email</h1>`, // html body
+      };
+
+      sendEmail(mailOptions);
     } else {
       res.status(400).json({ message: `unable to register ${fullname}` });
     }
@@ -61,16 +70,6 @@ export const loginAction = async (
       return res.status(400).json({ message: "Invalid Password or Email!" });
 
     res.status(200).json({ token: generateToken(findUser) });
-
-    const mailOptions = {
-      from: '"Material Science Division | Industrial Technology Development Institute | DOST" <admin@virtuallabmsd.com>', // sender address
-      to: "zepnds@gmail.com", // list of receivers
-      subject: "Registration Successfull", // Subject line
-      text: "Greetings from Material Science Division | Industrial Technology Development Institute | DOST", // plain text body
-      html: `<h1>Sample email</h1>`, // html body
-    };
-
-    sendEmail(mailOptions);
   } catch (error) {
     console.log("error 500", error);
     return res.status(500).json({ message: `Internal server error`, error });

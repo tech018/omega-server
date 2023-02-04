@@ -15,6 +15,7 @@ export const sendEmail = async (mailOptions: MailOptions) => {
     process.env.CLIENT_SECRET,
     process.env.GOOGLE_REDIRECT_URI
   );
+
   oAuth2Client.setCredentials({ refresh_token: process.env.REFRESH_TOKEN });
   const accessToken = await oAuth2Client.getAccessToken();
   const transport = nodemailer.createTransport({
