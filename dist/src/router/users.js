@@ -14,4 +14,7 @@ router.route("/register").post(validator.body(users_2.registerUserSchema), users
 router
     .route("/verifyEmail")
     .post(validator.query(users_2.emailVerifiedSchema), users_1.verifyEmail);
+router
+    .route("/resendcode")
+    .post(validator.query(users_2.resendCodeSchema), users_1.resendVericationCode);
 exports.default = router;

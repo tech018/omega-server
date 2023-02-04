@@ -25,6 +25,12 @@ export interface VerifyEmailSchema extends ValidatedRequestSchema {
   };
 }
 
+export interface resendEmailCodeSchema extends ValidatedRequestSchema {
+  [ContainerTypes.Query]: {
+    email: string;
+  };
+}
+
 //joi validation
 
 export const registerUserSchema = Joi.object({
@@ -42,5 +48,9 @@ export const loginUserSchema = Joi.object({
 
 export const emailVerifiedSchema = Joi.object({
   verificationCode: Joi.number().required(),
+  email: Joi.string().required().email(),
+});
+
+export const resendCodeSchema = Joi.object({
   email: Joi.string().required().email(),
 });

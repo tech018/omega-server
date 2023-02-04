@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyEmail = exports.loginAction = exports.createUser = void 0;
+exports.resendVericationCode = exports.verifyEmail = exports.loginAction = exports.createUser = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const users_1 = __importDefault(require("../models/users"));
 const generateToken_1 = require("../helpers/generateToken");
@@ -44,7 +44,7 @@ const createUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 to: email,
                 subject: "Email verification code",
                 text: "Greetings from Tarlac Agricultural University",
-                html: `<span>here is your OTP <h3>${randomGenerator_1.randomNumber}</h3></span>`,
+                html: `<span>here is your OTP <h3>${generated}</h3></span>`,
             };
             (0, sendMail_1.sendEmail)(mailOptions);
         }
@@ -88,8 +88,6 @@ const loginAction = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
 exports.loginAction = loginAction;
 const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { verificationCode, email } = req.query;
-    console.log("verificationCode", verificationCode);
-    console.log("email", email);
     try {
         const checkCode = yield users_1.default.findOne({
             where: {
@@ -126,7 +124,46 @@ const verifyEmail = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
     catch (error) {
         res.status(500).json({ message: "Internal server error" });
-        console.log("error", error);
     }
 });
 exports.verifyEmail = verifyEmail;
+const resendVericationCode = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.query;
+    try {
+        const checkEmail = yield users_1.default.findOne({
+            where: {
+                email,
+            },
+        });
+        if (!checkEmail) {
+            return res.status(400).json({
+                message: "Email cannot be found in our query or this is not registered",
+            });
+        }
+        const generated = (0, randomGenerator_1.randomNumber)(6);
+        const data = {
+            OTP: generated,
+        };
+        const resendCode = yield users_1.default.update(data, {
+            where: {
+                email,
+            },
+        });
+        const mailOptions = {
+            from: '"Tarlac Agricultural University" <admin@tau.edu.ph>',
+            to: email,
+            subject: "Resend Email verification code",
+            text: "Greetings from Tarlac Agricultural University",
+            html: `<span>here is your new OTP <h3>${generated}</h3></span>`,
+        };
+        (0, sendMail_1.sendEmail)(mailOptions);
+        if (resendCode)
+            return res.status(200).json({
+                message: "Successfully created new email verification code please check your email",
+            });
+    }
+    catch (error) {
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+exports.resendVericationCode = resendVericationCode;

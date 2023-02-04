@@ -6,6 +6,7 @@ import {
   RegisterRequestSchema,
   LoginRequestSchema,
   VerifyEmailSchema,
+  resendEmailCodeSchema,
 } from "../schema/users";
 import { generateToken } from "../helpers/generateToken";
 import { sendEmail } from "../helpers/sendMail";
@@ -54,7 +55,7 @@ export const createUser = async (
         to: email,
         subject: "Email verification code",
         text: "Greetings from Tarlac Agricultural University",
-        html: `<span>here is your OTP <h3>${randomNumber}</h3></span>`,
+        html: `<span>here is your OTP <h3>${generated}</h3></span>`,
       };
 
       sendEmail(mailOptions);
@@ -104,8 +105,6 @@ export const verifyEmail = async (
   res: Response
 ) => {
   const { verificationCode, email } = req.query;
-  console.log("verificationCode", verificationCode);
-  console.log("email", email);
 
   try {
     const checkCode = await UserModel.findOne({
@@ -147,6 +146,53 @@ export const verifyEmail = async (
         .json({ message: `Successfully verified email: ${email}` });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
-    console.log("error", error);
+  }
+};
+
+export const resendVericationCode = async (
+  req: ValidatedRequest<resendEmailCodeSchema>,
+  res: Response
+) => {
+  const { email } = req.query;
+  try {
+    const checkEmail = await UserModel.findOne({
+      where: {
+        email,
+      },
+    });
+
+    if (!checkEmail) {
+      return res.status(400).json({
+        message: "Email cannot be found in our query or this is not registered",
+      });
+    }
+
+    const generated = randomNumber(6);
+    const data: object = {
+      OTP: generated,
+    };
+
+    const resendCode = await UserModel.update(data, {
+      where: {
+        email,
+      },
+    });
+
+    const mailOptions = {
+      from: '"Tarlac Agricultural University" <admin@tau.edu.ph>',
+      to: email,
+      subject: "Resend Email verification code",
+      text: "Greetings from Tarlac Agricultural University",
+      html: `<span>here is your new OTP <h3>${generated}</h3></span>`,
+    };
+
+    sendEmail(mailOptions);
+    if (resendCode)
+      return res.status(200).json({
+        message:
+          "Successfully created new email verification code please check your email",
+      });
+  } catch (error) {
+    res.status(500).json({ message: "Internal server error" });
   }
 };
